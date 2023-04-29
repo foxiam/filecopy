@@ -8,6 +8,16 @@ import (
 	"testing"
 )
 
+func errorsEqual(err1, err2 error) bool {
+	if err1 == nil && err2 == nil {
+		return true
+	}
+	if err1 == nil || err2 == nil {
+		return false
+	}
+	return err1.Error() == err2.Error()
+}
+
 func TestCopyFiles(t *testing.T) {
 	type test struct {
 		name      string
@@ -21,21 +31,21 @@ func TestCopyFiles(t *testing.T) {
 		{
 			sourceDir: "./source/",
 			name:      "file mask *",
-			targetDir: "./tetst1/",
+			targetDir: "./test1/",
 			wantError: nil,
 		},
 		{
 			name:      "file mask *.txt",
 			sourceDir: "./source/",
 			fileMask:  "*.txt",
-			targetDir: "./tetst2/",
+			targetDir: "./test2/",
 			wantError: nil,
 		},
 		{
 			name:      "file mask 2.*",
 			sourceDir: "./source/",
 			fileMask:  "2.*",
-			targetDir: "./tetst3/",
+			targetDir: "./test3/",
 			wantError: nil,
 		},
 		{
@@ -58,17 +68,26 @@ func TestCopyFiles(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			if tt.wantError == nil {
-				err := os.MkdirAll(tt.targetDir, os.ModePerm)
+				_, err := os.Stat(filepath.Dir(tt.targetDir))
+				if err == nil {
+					t.Errorf("invalid test case, %v already exists", tt.targetDir)
+					return
+				}
+
+				err = os.MkdirAll(tt.targetDir, os.ModePerm)
 				if err != nil {
 					t.Errorf("invalid test case %v", err)
+					return
 				}
 
 				defer os.RemoveAll(filepath.Dir(tt.targetDir))
 			}
 
 			gotError := filecopy.CopyFiles(tt.sourceDir, tt.fileMask, tt.targetDir)
-			if gotError != nil && gotError.Error() != tt.wantError.Error() {
+
+			if !errorsEqual(gotError, tt.wantError) {
 				t.Errorf("CopyFiles error got = %v, expected %v", gotError, tt.wantError)
+				return
 			}
 
 			if gotError == nil {
