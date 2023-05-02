@@ -1,9 +1,10 @@
 package main
 
 import (
-	"filecopy/pkg/filecopy"
 	"fmt"
 	"log"
+
+	"github.com/foxiam/filecopy/pkg/filecopy"
 )
 
 func inputWithMessage(message string) string {
