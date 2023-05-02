@@ -95,7 +95,7 @@ func TestCopyFiles(t *testing.T) {
 					}
 
 					if !info.IsDir() && matched {
-						_, err := os.Stat(path)
+						_, err := os.Stat(filepath.Join(targetDir, info.Name()))
 						if err != nil {
 							t.Errorf("file %v not found", path)
 						}
