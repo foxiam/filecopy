@@ -60,14 +60,14 @@ func TestCopyFiles(t *testing.T) {
 		},
 	}
 
-	targetDir := filepath.Join(testPath, "/target/")
+	var targetDir string
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
 			if tt.wantError == nil {
-				err := os.Mkdir(targetDir, os.ModePerm)
-				os.Mkdir(targetDir, os.ModePerm)
+				var err error
+				targetDir, err = os.MkdirTemp(testPath, "target")
 				if err != nil {
 					t.Errorf("invalid test case: %v", err)
 					return
